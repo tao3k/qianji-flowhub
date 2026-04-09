@@ -1,0 +1,13 @@
+version = 1
+
+[flowhub]
+name = "qianji-flowhub"
+
+[contract]
+register = [
+  "coding",
+  "rust",
+  "blueprint",
+  "plan",
+]
+required = ["*/qianji.toml"]

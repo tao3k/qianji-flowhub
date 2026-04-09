@@ -1,0 +1,12 @@
+version = 1
+
+[module]
+name = "plan"
+tags = ["planning", "plan"]
+
+[exports]
+entry = "task.plan-start"
+ready = "task.plan-ready"
+
+[contract]
+required = ["codex-plan.mmd"]
