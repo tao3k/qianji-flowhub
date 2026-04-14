@@ -1,0 +1,17 @@
+version = 1
+
+[module]
+name = "wendao"
+tags = ["planning", "wendao", "search"]
+
+[exports]
+entry = "task.wendao-search-start"
+ready = "task.wendao-search-ready"
+
+[contract]
+required = ["docs-search.mmd"]
+
+[[graph]]
+path = "docs-search.mmd"
+name = "DOC_SEARCH"
+topology = "bounded_loop"

@@ -9,5 +9,6 @@ register = [
   "rust",
   "blueprint",
   "plan",
+  "wendao",
 ]
 required = ["*/qianji.toml"]

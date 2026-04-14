@@ -47,6 +47,9 @@ qianji-flowhub/
   plan/
     qianji.toml
     codex-plan.mmd
+  wendao/
+    qianji.toml
+    docs-search.mmd
 ```
 
 The intended graph backbone is:
@@ -61,9 +64,14 @@ flowchart LR
 Flowhub stores node anchors. Specific scenario relations are composed by
 scenario manifests and materialized work surfaces, not by nesting unrelated
 graph nodes inside one directory tree.
+The top-level `wendao/` node is a sibling module that owns its own docs-search
+scenario-case graph; it is not implicitly part of the planning backbone above.
 
 Immediate `*.mmd` files under a node are scenario-case graphs owned by that
 node. They must be declared by the node's `[contract].required` entries.
+Scenario-case graph labels may use the fixed Flowhub control vocabulary or one
+exact HTTP request label such as
+`GET /api/docs/search?repo=<repo>&query=<query>&kind=<kind>&limit=<n>`.
 
 For the live `plan` node:
 
@@ -74,14 +82,33 @@ plan/
 ```
 
 `codex-plan.mmd` is a Mermaid scenario-case graph. `qianji check` parses it
-through `merman-core`, derives `merimind_graph_name` from the filename stem,
-classifies labels matching live Flowhub module names as graph-module nodes,
-and rejects malformed or uncontracted scenario-case files. The graph must
-cover every registered Flowhub module node required by the current root
-contract, keep one connected module backbone between those module nodes, and
-avoid undeclared graph-node labels. `qianji show --dir "$PRJ_ROOT/qianji-flowhub/plan"`
+through `merman-core`, resolves `merimind_graph_name` from `[[graph]].name`
+or the filename-stem fallback, classifies labels matching known Flowhub
+module names as graph-module nodes, and rejects malformed or uncontracted
+scenario-case files. The graph must keep at least one legal module node,
+avoid undeclared graph-node labels, and when multiple module nodes appear,
+keep one connected module backbone between them. It does not need to cover
+every registered sibling module. `qianji show --dir "$PRJ_ROOT/qianji-flowhub/plan"`
 renders the owned scenario case with explicit fields for `Graph name` and
 `Path`.
+
+For the live `wendao` node:
+
+```text
+wendao/
+  qianji.toml
+  docs-search.mmd
+```
+
+`docs-search.mmd` is a Mermaid scenario-case graph anchored only by the local
+`wendao` module while exposing the exact Wendao docs HTTP call surface the LLM
+should follow for iterative search, page opening, tree inspection, navigation
+expansion, and retrieval-context synthesis. Its `[[graph]]` contract also
+declares `name = "DOC_SEARCH"`, so graph identity is no longer coupled to the
+transport filename alone.
+`qianji show --graph "$PRJ_ROOT/qianji-flowhub/wendao/docs-search.mmd"` now
+renders that local flow together with the owning module contract and owning
+`qianji.toml`, without injecting unrelated `blueprint/` or `plan/` surfaces.
 
 ## Scenario Composition Example
 
@@ -155,5 +182,7 @@ The validation model is:
    own child graph-node directories or immediate local scenario-case files
 5. immediate `*.mmd` scenario-case files must be declared in
    `contract.required`
-6. `qianji check` evaluates those contracts and reports structural drift with
+6. scenario-case graphs must contain at least one legal module node but do not
+   need to enumerate every registered sibling module
+7. `qianji check` evaluates those contracts and reports structural drift with
    markdown diagnostics

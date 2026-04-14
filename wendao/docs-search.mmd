@@ -1,0 +1,12 @@
+flowchart LR
+  A["wendao"] --> B["GET /api/docs/search?repo=<repo>&query=<query>&kind=<kind>&limit=<n>"]
+  B --> C["GET /api/docs/page?repo=<repo>&page_id=<page_id>"]
+  C --> D["GET /api/docs/page-index-tree?repo=<repo>&page_id=<page_id>"]
+  D --> E["GET /api/docs/navigation?repo=<repo>&page_id=<page_id>&node_id=<node_id>&family_kind=<kind>&related_limit=<n>&family_limit=<n>"]
+  E --> F["GET /api/docs/retrieval-context?repo=<repo>&page_id=<page_id>&node_id=<node_id>&related_limit=<n>"]
+  F --> G["done gate"]
+
+  B -- fail --> R["diagnostics"]
+  E -- fail --> R
+  F -- fail --> R
+  R --> B

@@ -10,3 +10,7 @@ ready = "task.plan-ready"
 
 [contract]
 required = ["codex-plan.mmd"]
+
+[[graph]]
+path = "codex-plan.mmd"
+topology = "bounded_loop"
