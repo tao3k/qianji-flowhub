@@ -1,0 +1,19 @@
+flowchart LR
+  A["research/paper"] --> B["pdf_intake"]
+  B --> C["pdf_sniff"]
+  C --> D["text_pass"]
+  D --> E["layout_regions_extract"]
+  E --> F["vision_patch_loop"]
+  F --> G["section_link"]
+  G --> H["citation_link"]
+  H --> I["figure_table_index"]
+  I --> J["canonicalize_done"]
+  J --> K["done gate"]
+
+  D -- fail --> R["diagnostics"]
+  E -- fail --> R
+  F -- fail --> R
+  G -- fail --> R
+  H -- fail --> R
+  I -- fail --> R
+  R --> B

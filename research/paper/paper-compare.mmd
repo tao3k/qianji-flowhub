@@ -1,0 +1,18 @@
+flowchart LR
+  A["research/paper"] --> B["load_topic_corpus"]
+  B --> C["align_schema"]
+  C --> D["compare_methods"]
+  D --> E["compare_results"]
+  E --> F["contradiction_detect"]
+  F --> G["gap_extract"]
+  G --> H["review_outline"]
+  H --> I["compare_done"]
+  I --> J["done gate"]
+
+  C -- fail --> R["diagnostics"]
+  D -- fail --> R
+  E -- fail --> R
+  F -- fail --> R
+  G -- fail --> R
+  H -- fail --> R
+  R --> B

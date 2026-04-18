@@ -9,6 +9,11 @@ register = [
   "rust",
   "blueprint",
   "plan",
+  "research",
   "wendao",
 ]
-required = ["*/qianji.toml"]
+required = [
+  "*/qianji.toml",
+  "docs/research-paper-graphs.md",
+  "docs/research-workspace-layering.md",
+]

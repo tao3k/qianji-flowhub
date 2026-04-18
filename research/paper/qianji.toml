@@ -1,0 +1,247 @@
+version = 1
+
+[module]
+name = "paper"
+tags = ["planning", "research", "paper"]
+
+[exports]
+entry = "task.paper-start"
+ready = "task.paper-ready"
+
+[contract]
+required = [
+  "paper-canonicalize.mmd",
+  "paper-deep-read.mmd",
+  "paper-compare.mmd",
+]
+
+[[graph]]
+path = "paper-canonicalize.mmd"
+name = "PAPER_CANONICALIZE"
+topology = "bounded_loop"
+
+[[graph.node]]
+label = "research/paper"
+kind = "artifact"
+role = "define the persistent single-paper knowledge package surface"
+agent_action = "materialize and update the persistent papers/<paper_id>/ package"
+
+[[graph.node]]
+label = "pdf_intake"
+kind = "process"
+role = "register the paper source package"
+agent_action = "register source inputs and create the initial paper source envelope"
+
+[[graph.node]]
+label = "pdf_sniff"
+kind = "process"
+role = "inspect the paper and choose the extraction path"
+agent_action = "inspect the source paper and select the extraction path"
+
+[[graph.node]]
+label = "text_pass"
+kind = "process"
+role = "materialize the first text extraction pass"
+agent_action = "materialize the first extraction pass under papers/<paper_id>/extraction/"
+
+[[graph.node]]
+label = "layout_regions_extract"
+kind = "process"
+role = "materialize page layout regions and anchors"
+agent_action = "materialize page layout regions and anchors into the paper extraction surface"
+
+[[graph.node]]
+label = "vision_patch_loop"
+kind = "process"
+role = "repair low-confidence extraction regions"
+agent_action = "repair low-confidence layout or text regions with visual patches"
+
+[[graph.node]]
+label = "section_link"
+kind = "process"
+role = "materialize the section tree and section anchors"
+agent_action = "materialize section_tree.json and section anchors"
+
+[[graph.node]]
+label = "citation_link"
+kind = "process"
+role = "materialize the reference index and citation graph"
+agent_action = "materialize reference_index.json and citation_graph.json"
+
+[[graph.node]]
+label = "figure_table_index"
+kind = "process"
+role = "materialize figure, table, and equation indexes"
+agent_action = "materialize figure, table, and equation indexes"
+
+[[graph.node]]
+label = "canonicalize_done"
+kind = "artifact"
+role = "define the ready canonical paper package"
+agent_action = "treat papers/<paper_id>/source, extraction, and structure as ready"
+
+[[graph.node]]
+label = "done gate"
+kind = "gate"
+role = "allow completion only when required guards and validators pass"
+agent_action = "do not treat the slice as complete before qianji check passes"
+
+[[graph.node]]
+label = "diagnostics"
+kind = "process"
+role = "capture blocking diagnostics for bounded-surface repair"
+agent_action = "use diagnostics to repair the bounded work surface before retrying"
+
+[[graph]]
+path = "paper-deep-read.mmd"
+name = "PAPER_DEEP_READ"
+topology = "bounded_loop"
+
+[[graph.node]]
+label = "research/paper"
+kind = "artifact"
+role = "define the persistent single-paper knowledge package surface"
+agent_action = "materialize and update the persistent papers/<paper_id>/ package"
+
+[[graph.node]]
+label = "load_paper_package"
+kind = "process"
+role = "load the canonical paper package for semantic reading"
+agent_action = "load the canonical papers/<paper_id>/ package for semantic reading"
+
+[[graph.node]]
+label = "methods_extract"
+kind = "process"
+role = "materialize method and experiment surfaces"
+agent_action = "materialize method_card.json and experiment_sheet.json"
+
+[[graph.node]]
+label = "results_extract"
+kind = "process"
+role = "materialize the paper result surface"
+agent_action = "materialize result_sheet.json"
+
+[[graph.node]]
+label = "claim_extract"
+kind = "process"
+role = "materialize the paper claim ledger"
+agent_action = "materialize claim_ledger.jsonl"
+
+[[graph.node]]
+label = "evidence_ground"
+kind = "process"
+role = "ground the evidence ledger back to paper sources"
+agent_action = "ground evidence_ledger.jsonl back to source pages and regions"
+
+[[graph.node]]
+label = "limitation_extract"
+kind = "process"
+role = "materialize the paper limitation surface"
+agent_action = "materialize limitation_sheet.json"
+
+[[graph.node]]
+label = "critique"
+kind = "process"
+role = "record critique findings in the paper notebook"
+agent_action = "record critique findings and contradictions in the paper notebook"
+
+[[graph.node]]
+label = "notebook_update"
+kind = "process"
+role = "update the paper reading notebook"
+agent_action = "update reading_journal and open_questions surfaces"
+
+[[graph.node]]
+label = "materialize_syntheses"
+kind = "process"
+role = "materialize paper-level syntheses"
+agent_action = "materialize paper-level syntheses under syntheses/"
+
+[[graph.node]]
+label = "deep_read_done"
+kind = "artifact"
+role = "define the ready deep-read paper package"
+agent_action = "treat the semantic paper package as ready for topic use"
+
+[[graph.node]]
+label = "done gate"
+kind = "gate"
+role = "allow completion only when required guards and validators pass"
+agent_action = "do not treat the slice as complete before qianji check passes"
+
+[[graph.node]]
+label = "diagnostics"
+kind = "process"
+role = "capture blocking diagnostics for bounded-surface repair"
+agent_action = "use diagnostics to repair the bounded work surface before retrying"
+
+[[graph]]
+path = "paper-compare.mmd"
+name = "PAPER_COMPARE"
+topology = "bounded_loop"
+
+[[graph.node]]
+label = "research/paper"
+kind = "artifact"
+role = "define the persistent single-paper knowledge packages used for comparison"
+agent_action = "treat the paper packages as the comparison inputs for the topic slice"
+
+[[graph.node]]
+label = "load_topic_corpus"
+kind = "process"
+role = "load the topic corpus and aligned paper packages"
+agent_action = "load topic paper refs and the aligned paper packages"
+
+[[graph.node]]
+label = "align_schema"
+kind = "process"
+role = "align one comparison schema across the topic corpus"
+agent_action = "align comparison schema across the topic corpus"
+
+[[graph.node]]
+label = "compare_methods"
+kind = "process"
+role = "materialize the cross-paper method comparison surface"
+agent_action = "materialize method_matrix.csv"
+
+[[graph.node]]
+label = "compare_results"
+kind = "process"
+role = "materialize the cross-paper result comparison surface"
+agent_action = "materialize result_matrix.csv and benchmark_grid.csv"
+
+[[graph.node]]
+label = "contradiction_detect"
+kind = "process"
+role = "materialize contradiction findings across the corpus"
+agent_action = "materialize contradiction_map.jsonl"
+
+[[graph.node]]
+label = "gap_extract"
+kind = "process"
+role = "materialize topic gap findings"
+agent_action = "materialize gap_log.md and research_gap_memo.md"
+
+[[graph.node]]
+label = "review_outline"
+kind = "process"
+role = "materialize the topic review synthesis"
+agent_action = "materialize literature_review_outline.md and state_of_field.md"
+
+[[graph.node]]
+label = "compare_done"
+kind = "artifact"
+role = "define the ready topic comparison package"
+agent_action = "treat topics/<topic_id>/comparison and syntheses as ready"
+
+[[graph.node]]
+label = "done gate"
+kind = "gate"
+role = "allow completion only when required guards and validators pass"
+agent_action = "do not treat the slice as complete before qianji check passes"
+
+[[graph.node]]
+label = "diagnostics"
+kind = "process"
+role = "capture blocking diagnostics for bounded-surface repair"
+agent_action = "use diagnostics to repair the bounded work surface before retrying"

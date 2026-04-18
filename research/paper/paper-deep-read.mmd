@@ -1,0 +1,22 @@
+flowchart LR
+  A["research/paper"] --> B["load_paper_package"]
+  B --> C["methods_extract"]
+  C --> D["results_extract"]
+  D --> E["claim_extract"]
+  E --> F["evidence_ground"]
+  F --> G["limitation_extract"]
+  G --> H["critique"]
+  H --> I["notebook_update"]
+  I --> J["materialize_syntheses"]
+  J --> K["deep_read_done"]
+  K --> L["done gate"]
+
+  C -- fail --> R["diagnostics"]
+  D -- fail --> R
+  E -- fail --> R
+  F -- fail --> R
+  G -- fail --> R
+  H -- fail --> R
+  I -- fail --> R
+  J -- fail --> R
+  R --> B
