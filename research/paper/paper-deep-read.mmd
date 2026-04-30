@@ -1,22 +1,163 @@
+%% qianji.scenario.id: deep_read
+%% qianji.scenario.name: PAPER_DEEP_READ
+%% qianji.scenario.description: canonical paper package -> deep read package
+%% qianji.scenario.note: `qianji check` evaluates this bounded run-local surface; Codex should materialize staging patches here before merging into the persistent paper package.
+%% qianji.scenario.topology: bounded_loop
+%% qianji.scenario.workdir_root: runs/<run_id>
+%% qianji.scenario.requires:
+%%   - refs/paper.json
+%%   - refs/topic.json
+%% qianji.scenario.target_root: papers/<paper_id>
+%% qianji.scenario.target_paths:
+%%   - semantics/method_card.json
+%%   - semantics/experiment_sheet.json
+%%   - semantics/result_sheet.json
+%%   - semantics/claim_ledger.jsonl
+%%   - semantics/evidence_ledger.jsonl
+%%   - semantics/limitation_sheet.json
+%%   - notebook/critique_log.md
+%%   - notebook/open_questions.jsonl
+%%   - notebook/reading_journal.md
+%%   - syntheses/deep_read.md
+%%   - syntheses/methods_digest.md
+%%   - syntheses/results_digest.md
+%%   - syntheses/critique_memo.md
 flowchart LR
-  A["research/paper"] --> B["load_paper_package"]
-  B --> C["methods_extract"]
-  C --> D["results_extract"]
-  D --> E["claim_extract"]
-  E --> F["evidence_ground"]
-  F --> G["limitation_extract"]
-  G --> H["critique"]
-  H --> I["notebook_update"]
-  I --> J["materialize_syntheses"]
-  J --> K["deep_read_done"]
-  K --> L["done gate"]
+  paper_package["research/paper"] --> load_paper_package["load_paper_package"]
+  load_paper_package --> methods_extract["methods_extract"]
+  methods_extract --> results_extract["results_extract"]
+  results_extract --> claim_extract["claim_extract"]
+  claim_extract --> evidence_ground["evidence_ground"]
+  evidence_ground --> limitation_extract["limitation_extract"]
+  limitation_extract --> critique["critique"]
+  critique --> notebook_update["notebook_update"]
+  notebook_update --> materialize_syntheses["materialize_syntheses"]
+  materialize_syntheses --> deep_read_done["deep_read_done"]
+  deep_read_done --> done_gate["done gate"]
 
-  C -- fail --> R["diagnostics"]
-  D -- fail --> R
-  E -- fail --> R
-  F -- fail --> R
-  G -- fail --> R
-  H -- fail --> R
-  I -- fail --> R
-  J -- fail --> R
-  R --> B
+  methods_extract -- fail --> diagnostics["diagnostics"]
+  results_extract -- fail --> diagnostics
+  claim_extract -- fail --> diagnostics
+  evidence_ground -- fail --> diagnostics
+  limitation_extract -- fail --> diagnostics
+  critique -- fail --> diagnostics
+  notebook_update -- fail --> diagnostics
+  materialize_syntheses -- fail --> diagnostics
+  diagnostics --> load_paper_package
+
+%% qianji.node.paper_package.kind: artifact
+%% qianji.node.paper_package.role: define the persistent single-paper knowledge package surface
+%% qianji.node.paper_package.agent_action: use the persistent papers/<paper_id>/ package as the canonical merge owner
+
+%% qianji.node.load_paper_package.kind: process
+%% qianji.node.load_paper_package.role: load the canonical paper package for semantic reading
+%% qianji.node.load_paper_package.agent_action: load the canonical paper package and initialize run-local state only
+
+%% qianji.node.methods_extract.kind: process
+%% qianji.node.methods_extract.role: materialize method and experiment surfaces
+%% qianji.node.methods_extract.agent_action: write the methods checkpoint and semantics staging patches only
+%% qianji.node.methods_extract.checkpoint: checkpoints/methods_extract.json
+%% qianji.node.methods_extract.writes:
+%%   - staging/semantics/method_card.patch.json
+%%   - staging/semantics/experiment_sheet.patch.json
+%% qianji.node.methods_extract.merge_target:
+%%   - semantics/method_card.json
+%%   - semantics/experiment_sheet.json
+
+%% qianji.node.results_extract.kind: process
+%% qianji.node.results_extract.role: materialize the paper result surface
+%% qianji.node.results_extract.agent_action: write the results checkpoint and result staging patch only
+%% qianji.node.results_extract.checkpoint: checkpoints/results_extract.json
+%% qianji.node.results_extract.writes:
+%%   - staging/semantics/result_sheet.patch.json
+%% qianji.node.results_extract.merge_target:
+%%   - semantics/result_sheet.json
+
+%% qianji.node.claim_extract.kind: process
+%% qianji.node.claim_extract.role: materialize the paper claim ledger
+%% qianji.node.claim_extract.agent_action: write the claim checkpoint and claim ledger staging patch only
+%% qianji.node.claim_extract.checkpoint: checkpoints/claim_extract.json
+%% qianji.node.claim_extract.writes:
+%%   - staging/semantics/claim_ledger.patch.jsonl
+%% qianji.node.claim_extract.merge_target:
+%%   - semantics/claim_ledger.jsonl
+
+%% qianji.node.evidence_ground.kind: process
+%% qianji.node.evidence_ground.role: ground the evidence ledger back to paper sources
+%% qianji.node.evidence_ground.agent_action: write the evidence checkpoint and evidence staging patch only
+%% qianji.node.evidence_ground.checkpoint: checkpoints/evidence_ground.json
+%% qianji.node.evidence_ground.writes:
+%%   - staging/semantics/evidence_ledger.patch.jsonl
+%% qianji.node.evidence_ground.merge_target:
+%%   - semantics/evidence_ledger.jsonl
+
+%% qianji.node.limitation_extract.kind: process
+%% qianji.node.limitation_extract.role: materialize the paper limitation surface
+%% qianji.node.limitation_extract.agent_action: write the limitations checkpoint and limitation staging patch only
+%% qianji.node.limitation_extract.checkpoint: checkpoints/limitation_extract.json
+%% qianji.node.limitation_extract.writes:
+%%   - staging/semantics/limitation_sheet.patch.json
+%% qianji.node.limitation_extract.merge_target:
+%%   - semantics/limitation_sheet.json
+
+%% qianji.node.critique.kind: process
+%% qianji.node.critique.role: record critique findings in the paper notebook
+%% qianji.node.critique.agent_action: write the critique checkpoint and notebook staging patch only
+%% qianji.node.critique.checkpoint: checkpoints/critique.json
+%% qianji.node.critique.writes:
+%%   - staging/notebook/critique_log.patch.md
+%% qianji.node.critique.merge_target:
+%%   - notebook/critique_log.md
+
+%% qianji.node.notebook_update.kind: process
+%% qianji.node.notebook_update.role: update the paper reading notebook
+%% qianji.node.notebook_update.agent_action: write the notebook checkpoint and notebook staging patches only
+%% qianji.node.notebook_update.checkpoint: checkpoints/notebook_update.json
+%% qianji.node.notebook_update.writes:
+%%   - staging/notebook/open_questions.patch.jsonl
+%%   - staging/notebook/reading_journal.patch.md
+%% qianji.node.notebook_update.merge_target:
+%%   - notebook/open_questions.jsonl
+%%   - notebook/reading_journal.md
+
+%% qianji.node.materialize_syntheses.kind: process
+%% qianji.node.materialize_syntheses.role: materialize paper-level syntheses
+%% qianji.node.materialize_syntheses.agent_action: write the syntheses checkpoint and syntheses staging patches only
+%% qianji.node.materialize_syntheses.checkpoint: checkpoints/materialize_syntheses.json
+%% qianji.node.materialize_syntheses.writes:
+%%   - staging/syntheses/deep_read.patch.md
+%%   - staging/syntheses/methods_digest.patch.md
+%%   - staging/syntheses/results_digest.patch.md
+%%   - staging/syntheses/critique_memo.patch.md
+%% qianji.node.materialize_syntheses.merge_target:
+%%   - syntheses/deep_read.md
+%%   - syntheses/methods_digest.md
+%%   - syntheses/results_digest.md
+%%   - syntheses/critique_memo.md
+
+%% qianji.node.deep_read_done.kind: artifact
+%% qianji.node.deep_read_done.role: define the ready deep-read paper package
+%% qianji.node.deep_read_done.agent_action: treat the semantic paper package as ready for topic use
+
+%% qianji.node.done_gate.kind: gate
+%% qianji.node.done_gate.role: allow completion only when required guards and validators pass
+%% qianji.node.done_gate.agent_action: do not treat the slice as complete before qianji check passes
+
+%% qianji.node.diagnostics.kind: process
+%% qianji.node.diagnostics.role: capture blocking diagnostics for bounded-surface repair
+%% qianji.node.diagnostics.agent_action: use diagnostics to repair the bounded work surface before retrying
+
+%% qianji.done_gate.require:
+%%   - semantics/method_card.json
+%%   - semantics/experiment_sheet.json
+%%   - semantics/result_sheet.json
+%%   - semantics/claim_ledger.jsonl
+%%   - semantics/evidence_ledger.jsonl
+%%   - semantics/limitation_sheet.json
+%%   - notebook/critique_log.md
+%%   - notebook/open_questions.jsonl
+%%   - notebook/reading_journal.md
+%%   - syntheses/deep_read.md
+%%   - syntheses/methods_digest.md
+%%   - syntheses/results_digest.md
+%%   - syntheses/critique_memo.md

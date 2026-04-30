@@ -20,6 +20,64 @@ path = "paper-canonicalize.mmd"
 name = "PAPER_CANONICALIZE"
 topology = "bounded_loop"
 
+[graph.workdir]
+note = "`qianji check` evaluates this bounded run-local surface before canonical paper objects are merged."
+root = "runs/<run_id>"
+
+[graph.workdir.check]
+require = [
+  "qianji.toml",
+  "flowchart.mmd",
+  "refs/paper.json",
+  "state/current_node.toml",
+  "state/trace.jsonl",
+  "state/allowed_next.json",
+  "checkpoints/pdf_intake.json",
+  "checkpoints/pdf_sniff.json",
+  "checkpoints/text_pass.json",
+  "checkpoints/layout_regions_extract.json",
+  "checkpoints/vision_patch_loop.json",
+  "checkpoints/section_link.json",
+  "checkpoints/citation_link.json",
+  "checkpoints/figure_table_index.json",
+  "staging/source/envelope.patch.json",
+  "staging/source/page_index.patch.json",
+  "staging/extraction/text_pass.patch.json",
+  "staging/extraction/layout_regions.patch.json",
+  "staging/extraction/vision_patches.patch.jsonl",
+  "staging/structure/section_tree.patch.json",
+  "staging/structure/figure_index.patch.json",
+  "staging/structure/table_index.patch.json",
+  "staging/structure/equation_index.patch.json",
+  "staging/structure/reference_index.patch.json",
+  "staging/structure/citation_graph.patch.json",
+  "diagnostics/latest_check.md",
+  "diagnostics/blocked.json",
+  "diagnostics/failed.json",
+  "outputs/response_preview.md",
+]
+flowchart = [
+  "state",
+  "checkpoints",
+  "staging",
+]
+
+[graph.workdir.target]
+root = "papers/<paper_id>"
+paths = [
+  "source/envelope.json",
+  "source/pages/",
+  "extraction/text_pass.json",
+  "extraction/layout_regions.json",
+  "extraction/vision_patches.jsonl",
+  "structure/section_tree.json",
+  "structure/figure_index.json",
+  "structure/table_index.json",
+  "structure/equation_index.json",
+  "structure/reference_index.json",
+  "structure/citation_graph.json",
+]
+
 [[graph.node]]
 label = "research/paper"
 kind = "artifact"
@@ -97,88 +155,62 @@ path = "paper-deep-read.mmd"
 name = "PAPER_DEEP_READ"
 topology = "bounded_loop"
 
-[[graph.node]]
-label = "research/paper"
-kind = "artifact"
-role = "define the persistent single-paper knowledge package surface"
-agent_action = "materialize and update the persistent papers/<paper_id>/ package"
-
-[[graph.node]]
-label = "load_paper_package"
-kind = "process"
-role = "load the canonical paper package for semantic reading"
-agent_action = "load the canonical papers/<paper_id>/ package for semantic reading"
-
-[[graph.node]]
-label = "methods_extract"
-kind = "process"
-role = "materialize method and experiment surfaces"
-agent_action = "materialize method_card.json and experiment_sheet.json"
-
-[[graph.node]]
-label = "results_extract"
-kind = "process"
-role = "materialize the paper result surface"
-agent_action = "materialize result_sheet.json"
-
-[[graph.node]]
-label = "claim_extract"
-kind = "process"
-role = "materialize the paper claim ledger"
-agent_action = "materialize claim_ledger.jsonl"
-
-[[graph.node]]
-label = "evidence_ground"
-kind = "process"
-role = "ground the evidence ledger back to paper sources"
-agent_action = "ground evidence_ledger.jsonl back to source pages and regions"
-
-[[graph.node]]
-label = "limitation_extract"
-kind = "process"
-role = "materialize the paper limitation surface"
-agent_action = "materialize limitation_sheet.json"
-
-[[graph.node]]
-label = "critique"
-kind = "process"
-role = "record critique findings in the paper notebook"
-agent_action = "record critique findings and contradictions in the paper notebook"
-
-[[graph.node]]
-label = "notebook_update"
-kind = "process"
-role = "update the paper reading notebook"
-agent_action = "update reading_journal and open_questions surfaces"
-
-[[graph.node]]
-label = "materialize_syntheses"
-kind = "process"
-role = "materialize paper-level syntheses"
-agent_action = "materialize paper-level syntheses under syntheses/"
-
-[[graph.node]]
-label = "deep_read_done"
-kind = "artifact"
-role = "define the ready deep-read paper package"
-agent_action = "treat the semantic paper package as ready for topic use"
-
-[[graph.node]]
-label = "done gate"
-kind = "gate"
-role = "allow completion only when required guards and validators pass"
-agent_action = "do not treat the slice as complete before qianji check passes"
-
-[[graph.node]]
-label = "diagnostics"
-kind = "process"
-role = "capture blocking diagnostics for bounded-surface repair"
-agent_action = "use diagnostics to repair the bounded work surface before retrying"
-
 [[graph]]
 path = "paper-compare.mmd"
 name = "PAPER_COMPARE"
 topology = "bounded_loop"
+
+[graph.workdir]
+note = "`qianji check` evaluates this bounded comparison run before validated outputs are merged into the persistent topic package."
+root = "runs/<run_id>"
+
+[graph.workdir.check]
+require = [
+  "qianji.toml",
+  "flowchart.mmd",
+  "refs/topic.json",
+  "refs/paper_set.json",
+  "state/current_node.toml",
+  "state/trace.jsonl",
+  "state/allowed_next.json",
+  "checkpoints/load_topic_corpus.json",
+  "checkpoints/align_schema.json",
+  "checkpoints/compare_methods.json",
+  "checkpoints/compare_results.json",
+  "checkpoints/contradiction_detect.json",
+  "checkpoints/gap_extract.json",
+  "checkpoints/review_outline.json",
+  "staging/comparison/method_matrix.patch.csv",
+  "staging/comparison/result_matrix.patch.csv",
+  "staging/comparison/benchmark_grid.patch.csv",
+  "staging/notebook/contradiction_map.patch.jsonl",
+  "staging/notebook/gap_log.patch.md",
+  "staging/notebook/research_gap_memo.patch.md",
+  "staging/syntheses/literature_review_outline.patch.md",
+  "staging/syntheses/state_of_field.patch.md",
+  "diagnostics/latest_check.md",
+  "diagnostics/blocked.json",
+  "diagnostics/failed.json",
+  "outputs/response_preview.md",
+]
+flowchart = [
+  "state",
+  "checkpoints",
+  "staging",
+]
+
+[graph.workdir.target]
+root = "topics/<topic_id>"
+paths = [
+  "comparison/method_matrix.csv",
+  "comparison/result_matrix.csv",
+  "comparison/benchmark_grid.csv",
+  "notebook/contradiction_map.jsonl",
+  "notebook/gap_log.md",
+  "notebook/research_gap_memo.md",
+  "syntheses/literature_review_outline.md",
+  "syntheses/state_of_field.md",
+]
 
 [[graph.node]]
 label = "research/paper"

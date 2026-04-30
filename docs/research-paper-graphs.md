@@ -22,10 +22,18 @@ The `paper/` child owns three distinct scenario-case graphs:
 
 These graphs are Flowhub constraints. They are not the persistent research data
 surface themselves.
-Their node semantics now live in the owning
-`research/paper/qianji.toml` `[[graph.node]]` contracts, so `xiuxian-qianji`
-only reads and enforces the graph contract instead of hard-coding this paper
-vocabulary in Rust.
+Today the ownership is intentionally mixed:
+
+1. `paper-canonicalize.mmd` and `paper-compare.mmd` still use
+   `research/paper/qianji.toml` `[[graph]]` plus `[[graph.node]]` contracts
+2. `paper-deep-read.mmd` now owns its scenario id, display name, topology,
+   localized work-surface metadata, target surface, done gate, and node-level
+   semantics directly through `%% qianji.*` Mermaid annotations
+
+`xiuxian-qianji` now compiles both shapes into one shared scenario IR before
+`show --graph` or Flowhub graph validation runs, so Rust only parses,
+validates, and renders the graph contract instead of hard-coding the paper
+lane vocabulary.
 
 ## Graph Roles
 
@@ -56,6 +64,17 @@ Purpose:
 1. load one canonical paper package
 2. derive semantic ledgers and notebook state
 3. materialize paper-level syntheses
+
+Contract ownership:
+
+1. `%% qianji.scenario.*` owns the localized run root, target root, target
+   paths, and display metadata
+2. `%% qianji.node.*` owns checkpoints, staging writes, merge targets, and
+   node semantics
+3. `qianji.node.<node_ref>` is frozen to the Mermaid node id, not the visible
+   Mermaid label, so annotation keys stay machine-safe even when the label
+   contains spaces or `/`
+4. `%% qianji.done_gate.require` owns the canonical completion surface
 
 Primary process labels:
 

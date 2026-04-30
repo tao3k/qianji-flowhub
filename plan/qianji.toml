@@ -15,6 +15,24 @@ required = ["codex-plan.mmd"]
 path = "codex-plan.mmd"
 topology = "bounded_loop"
 
+[graph.workdir]
+note = "`qianji check` evaluates the localized plan work surface, not the source Flowhub module."
+root = "<plan-workdir>"
+
+[graph.workdir.check]
+require = [
+  "qianji.toml",
+  "flowchart.mmd",
+  "blueprint",
+  "plan",
+  "blueprint/**/*.md",
+  "plan/**/*.md",
+]
+flowchart = [
+  "blueprint",
+  "plan",
+]
+
 [[graph.node]]
 label = "coding"
 kind = "context"

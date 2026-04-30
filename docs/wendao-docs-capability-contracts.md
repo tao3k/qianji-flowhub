@@ -40,6 +40,12 @@ Current boundary rules:
 3. Arrow Flight remains the preferred direction for a purer business transport
    boundary, but the Flowhub graph does not need to encode transport syntax in
    order to express that direction
+4. when a graph needs a localized execution surface, that preview belongs in
+   the owning `qianji.toml` `[graph.workdir]` plus
+   `[graph.workdir.check]` and optional `[graph.workdir.target]` contract
+   rather than a Rust-owned per-graph branch; the localized bounded-work
+   manifest name is derived from the owning graph path instead of a second
+   workdir-local field
 
 ## What Rust Still Owns
 
@@ -48,7 +54,11 @@ Current boundary rules:
 1. load `qianji.toml`
 2. parse Mermaid
 3. validate that every non-module graph node is declared
-4. render the declared contract surface on `qianji show --graph`
+4. validate any declared `[graph.workdir]` contract against the bounded
+   work-surface schema derived from `check.require`
+5. render the declared contract surface on `qianji show --graph`
+6. keep missing `workdir` declarations visibly missing instead of fabricating a
+   starter workdir template in Rust
 
 When a node has no matching `[[graph.node]]` contract, the renderer should stay
 generic and defensive instead of inventing a business meaning.
